@@ -21,20 +21,29 @@ int main(int argc, char *argv[]) {
    }
    
    /* your code goes here. */
-   int i;
-   int j;
+   int i, j;
    int tmp;
-   int current;
    int row, col;
+   bool found;
    for(i = 0; i < 1024; i++) {
+      found = false;
       //once row > 52 or column >
       row = i / 16;
-      col = i % 64;
+      col = i % 16;
       if (row < 53 && col < 14) {
          for (j = 3; j > 0; j--) {
             tmp = CrowdInts[i] >> 8*j;
             tmp = tmp & 0xF;
-            if ()
+            /* check if pixel in (,) is white*/
+            
+            /* pixel (hat) is blue */
+            if (tmp == 3) {
+               
+            } 
+            /* pixel (hat) is black */
+            else if (tmp == 8) {
+
+            }
          }
       }
    }
