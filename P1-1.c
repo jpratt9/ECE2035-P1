@@ -6,9 +6,9 @@ This program finds George (possibly incognito) in a crowd. */
 #include <stdlib.h>
 
 int main(int argc, char *argv[]) {
-   int	             CrowdInts[1024];
-   int	             NumInts, Location=0;
-   int               Load_Mem(char *, int *);
+   int CrowdInts[1024];
+   int NumInts, Location=0;
+   int Load_Mem(char *, int *);
 
    if (argc != 2) {
      printf("usage: ./P1-1 valuefile\n");
@@ -19,8 +19,25 @@ int main(int argc, char *argv[]) {
       printf("valuefiles must contain 1024 entries\n");
       exit(1);
    }
-
+   
    /* your code goes here. */
+   int i;
+   int j;
+   int tmp;
+   int current;
+   int row, col;
+   for(i = 0; i < 1024; i++) {
+      //once row > 52 or column >
+      row = i / 16;
+      col = i % 64;
+      if (row < 53 && col < 14) {
+         for (j = 3; j > 0; j--) {
+            tmp = CrowdInts[i] >> 8*j;
+            tmp = tmp & 0xF;
+            if ()
+         }
+      }
+   }
 
    printf("The rightmost pixel at the top of George's hat is located at: %4d.\n", Location);
    exit(0);
