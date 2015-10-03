@@ -24,46 +24,82 @@ int main(int argc, char *argv[]) {
    int i, j;
    int tmp;
    int row, col;
-   bool found;
+   int found;
    for(i = 0; i < 1024; i++) {
       found = false;
       //once row > 52 or column >
       row = i / 16;
       col = i % 16;
-      /* row and col max values calculated to prevent going out of bounds */
+      // row and col max values calculated to prevent going out of bounds 
       if (row < 53 && col < 14) {
-         for (j = 0; j < 4; j++) {
+         for (j = 3; j >= 0; j--) {
 
-            /* shift line to pixel of interest */
-            tmp = CrowdInts[i] >> 8*(3-j);
-            /* remove everything except pixel of interest */
+            // shift line to pixel of interest 
+            tmp = CrowdInts[i] >> (8 * j);
+            // remove everything except pixel of interest
             tmp = tmp & 0xF;
 
-            /* only found if our pixel is blue or black */
+            // only found if our pixel is blue or black
             found = (tmp == 3) || (tmp == 8);
 
-            /* check if pixel in (,) is white: */
-            /* the i-shift is precalculated given all possible values of j and 
-               where the white pixel is in relation to the blue/black pixel */
-            tmp = CrowdInts[i + 16 + j/3];
-            /* the j-shift is precalculated given all possible values of j and 
-               where the white pixel will be inside the "line" given the value 
-               of j */
-            tmp = tmp >> ((j + 1) % 3 - place / 3);
-            /* now again we get rid of everything but the pixel of interest */
+            // check if pixel in (,) is white:
+            // the i-shift is precalculated given all possible values of j and 
+            // where the white pixel is in relation to the blue/black pixel 
+            tmp = CrowdInts[i + 16 + (j == 0)];
+            // the j-shift is precalculated given all possible values of j and 
+            // where the white pixel will be inside the "line" given the value 
+            // of j
+            tmp = tmp >> ((j + 3) % 4);
+            // now again we get rid of everything but the pixel of interest
             tmp = tmp & 0xF;
 
-            /* "found" now includes whether this other pixel was white */
+            // "found" now includes whether this other pixel was white
             found = found && (tmp == 1);
             
             if (found) {
-               /* pixel (hat) is blue */
+               // apply same method as before to see if skin is yellow
+               tmp = CrowdInts[i + (6 * 16) - (j == 0)];
+               tmp = tmp >> (8 * 3 * (j < 3));
+               found = found && (tmp == 5);
+
+               // hat is blue
                if (tmp == 3) {
-                  
+                  // check to make sure he's not wearing any glasses
+                  tmp = CrowdInts[i + (5 * 16) - (j == 0)];
+                  tmp = tmp >> (8 * 3 * (j < 3));
+                  found = found && (tmp == 5);
+
+                  // eyes are green
+                  tmp = CrowdInts[i + (5 * 16)];
+                  tmp = tmp >> (8 * j);
+                  found = found && (tmp == 7);
+
+                  // red smile
+                  tmp = CrowdInts[i + (7 * 16)];
+                  tmp = tmp >> (8 * j);
+                  found = found && (tmp == 2);
+
+                  // blue shirt
+
                }
-               /* pixel (hat) is black */
+
+               // hat is black 
                else if (tmp == 8) {
-                  
+                  // check to make sure his glasses are blue
+                  tmp = CrowdInts[i + (5 * 16) - (j == 0)];
+                  tmp = tmp >> (8 * 3 * (j < 3));
+                  found = found && (tmp == 3);
+
+                  // black mustache
+                  tmp = CrowdInts[i + (7 * 16)];
+                  tmp = tmp >> (8 * j);
+                  found = found && (tmp == 2);
+
+                  // black shirt
+               }
+               if (found) {
+                  Location = (4 * i) + (6 - j);
+                  break;
                }
             }
          }
