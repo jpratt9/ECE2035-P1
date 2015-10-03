@@ -60,6 +60,7 @@ int main(int argc, char *argv[]) {
                // apply same method as before to see if skin is yellow
                tmp = CrowdInts[i + (6 * 16) - (j == 0)];
                tmp = tmp >> (8 * 3 * (j < 3));
+               tmp = tmp & 0xF;
                found = found && (tmp == 5);
 
                // hat is blue
@@ -67,19 +68,25 @@ int main(int argc, char *argv[]) {
                   // check to make sure he's not wearing any glasses
                   tmp = CrowdInts[i + (5 * 16) - (j == 0)];
                   tmp = tmp >> (8 * 3 * (j < 3));
+                  tmp = tmp & 0xF;
                   found = found && (tmp == 5);
 
                   // eyes are green
                   tmp = CrowdInts[i + (5 * 16)];
                   tmp = tmp >> (8 * j);
+                  tmp = tmp & 0xF;
                   found = found && (tmp == 7);
 
                   // red smile
                   tmp = CrowdInts[i + (7 * 16)];
                   tmp = tmp >> (8 * j);
+                  tmp = tmp & 0xF;
                   found = found && (tmp == 2);
 
                   // blue shirt
+                  tmp = CrowdInts[i +_(11 * 16)];
+                  tmp = tmp & 0xF;
+                  found = found && (tmp == 3);
 
                }
 
@@ -88,14 +95,19 @@ int main(int argc, char *argv[]) {
                   // check to make sure his glasses are blue
                   tmp = CrowdInts[i + (5 * 16) - (j == 0)];
                   tmp = tmp >> (8 * 3 * (j < 3));
+                  tmp = tmp & 0xF;
                   found = found && (tmp == 3);
 
                   // black mustache
                   tmp = CrowdInts[i + (7 * 16)];
                   tmp = tmp >> (8 * j);
+                  tmp = tmp & 0xF;
                   found = found && (tmp == 2);
 
                   // black shirt
+                  tmp = CrowdInts[i +_(11 * 16)];
+                  tmp = tmp & 0xF;
+                  found = found && (tmp == 8);
                }
                if (found) {
                   Location = (4 * i) + (6 - j);
