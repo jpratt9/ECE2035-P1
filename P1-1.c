@@ -1,4 +1,4 @@
-/*  <your name goes here>
+/*  John Pratt
 
 This program finds George (possibly incognito) in a crowd. */
 
@@ -129,6 +129,8 @@ int main(int argc, char *argv[]) {
                   tmp = tmp & 0xF;
                   found = found && (tmp == 8);
                }
+               // once all is said and done, if our found variable is still true
+               // we've found George, so change location to show this.
                if (found) {
                      Location = 4 * i + j + 3;
                }
