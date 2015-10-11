@@ -11,8 +11,6 @@ Array:  .alloc 1024
 
 .text
 
-TEST CHANGE LOOK HERE!!!
-
 FindGeorge: addi  $1, $0, Array  # point to array base
             swi   588            # generate crowd
 
