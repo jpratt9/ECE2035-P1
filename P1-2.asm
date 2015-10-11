@@ -11,12 +11,14 @@ Array:  .alloc 1024
 
 .text
 
+TEST CHANGE LOOK HERE!!!
+
 FindGeorge: addi  $1, $0, Array  # point to array base
             swi   588            # generate crowd
-      
+
             # your code goes here
             addi  $2, $0, -4     # i = -1
-            addi  $3, $0, 64     # (constant) = 16 (it's a waste of dynamic 
+            addi  $3, $0, 64     # (constant) = 16 (it's a waste of dynamic
                                  # calls to do this every loop iteration)
 
 Outer:      addi  $2, $2, 4      # i++
@@ -36,7 +38,7 @@ Outer:      addi  $2, $2, 4      # i++
             ### They are included to show how to use swi 552 and 553.
             addi  $2, $0, 160    # mark the 160th pixel
             swi   552            # with this swi
-   
+
             addi  $2, $0, 161    # mark the 161th pixel
             swi   552            # with this swi
 
