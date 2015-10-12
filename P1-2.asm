@@ -18,7 +18,8 @@ FindGeorge: addi  $1, $0, Array  # point to array base
             addi  $1, $0, -4     # i = -1
             addi  $2, $0, 64     # (constant) = 16 (it's a waste of dynamic
                                  # calls to do this every loop iteration)
-            addi  $3, $0, 4      # (constant3) = 4 (used when shifting inside array element)
+            addi  $3, $0, 4      # (constant2) = 4 (used when shifting inside array element)
+            addi  $9, $0, -1     # (contant3) = -1 ()
 
             # note - we precalculate the max value for i's of interest
             # this is based on the fact that faces can't hang off the picture
@@ -39,8 +40,17 @@ Inner:      addi  $4, $4, 1      # j++
                   
             # first we'll make sure we're on the top-left of a blue or black hat      
             # get ready to call Shift (this isn't the best example of how Shift works - refer to where we test if the hat stripe is correct)
-            addi  $5, $0, 0      # how many elements in CrowdInts we have to shift
-            addi  $6, $0, 4      # k - used in modulus (how many 'pixels' in CrowdInts to shift)
+            # general formula:
+            # poi = ( CrowdInts[i + (k * 16) + l * (j == m)] >> (8 * ((j + n) % 4)) ) & 0xF
+            # found = found && (poi == p)
+            # poi : pixel of interest
+            # if m == -1, we're telling the program not to check the value of j there
+            # found : whether we still think we've found George's face
+            # p : color of interest
+            addi  $5, $0, 0      # k - row shift
+            addi  $6, $0, 1      # l - positive or negative shift
+            addi  $7, $0, -1     # m - -1, so we're not checking j against anything
+            addi  $8, $0, 4      # n - we won't be shifting j at all here
             jal   Shift
 
             addi  $6, $0, 8      
@@ -60,7 +70,8 @@ Black:
 
             # other code for pixels to test
 
-Shift:      add   $5, $1, $5     # place = i + shift
+Shift:      sllv  $5, $1, 6     # (k * 16)
+
             lw    $5, Array($5)  # tmp = CrowdInts(place)
             add   $6, $6, $     # j-shift = j + k
             div   $6, $3
