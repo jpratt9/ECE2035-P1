@@ -4,7 +4,7 @@
 # This routine finds an exact match of George's face (possibly incognito)
 # in a crowd.
 #
-# <insert date>                               <your name here>
+# 10-12-2015                               John Pratt
 
 .data
 Array:  .alloc	1024
