@@ -12,6 +12,7 @@ Array:      .alloc 1024
 .text
 
 FindGeorge: addi  $1, $0, Array     # point to array base
+            #addi  $2, $0, -1
             swi   588               # generate crowd
 
             # We're going to move down columns rather than across rows
@@ -28,7 +29,7 @@ FindGeorge: addi  $1, $0, Array     # point to array base
             # incrementation of row and col were calculated based on
             # several trials of each with all combinations of values ranging
             # from 3 to 6
-            addi  $1, $0, 1        # col_i = 2
+            addi  $1, $0, 1         # col_i = 5
 ColLoop:    addi  $1, $1, 4         # col+=4
             addi  $3, $0, -5        # row_i = 0
 RowLoop:    addi  $3, $3, 5         # row+=5
@@ -36,13 +37,6 @@ RowLoop:    addi  $3, $3, 5         # row+=5
             beq   $5, $0, ColLoop   # if (row >= 58), skip to next column
             sll   $2, $3, 6         # index
             add   $2, $2, $1        # index = col + 64 * row
-            # swi   552
-
-
-            # prototype code for linear indexing, not (row,col) -> index
-            #addi  $2, $0, -6
-            #addi  $2, $2, 6
-            #srl   $1, $2, 
 
             # check that pixel is not background color
             lbu   $4, Array($2)     # pixel = Array(index)
@@ -50,24 +44,16 @@ RowLoop:    addi  $3, $3, 5         # row+=5
             beq   $5, $0, RowLoop   # if (pixel >= 9), skip to next pixel
 
             
-            # All we know from here is that we're on top of the hat.
+            # All we know from here is that on an actual face.  From here, we'll
+            # attempt to navigate to a reference point (since we could be on 
+            # the stripe), then go from there.
             # From here, we need to get to a reference point. I picked the 
             # bottom-left of the hat.
-
-            # swi   552
-
-            beq   $4, $6, Left        # if the hat is Blue, start moving to 
-                                      # reference point
-            bne   $4, $7, RowLoop     # if it wasn't blue or black, wrong face
-
-            #swi   552
             
             # The following code (up to but not including "Stripes")
             # will move our index to that of the bottom left of the hat
             # (because this is the simplest reference point to get to).
-# Move:       beq   $1, $0, Down      # skip to going down to prevent going out of 
-                                    # bounds
-            
+           
             # Firstly, we need to get to the far-left point in the current row
             # (on the hat).
 Left:       addi  $2, $2, -1        # location left of pixel
@@ -91,8 +77,6 @@ Down:       addi  $2, $2, 64        # location below pixel
             addi  $2, $2, -64       # This algo is bound to take us off the hat,
                                     # so we'll need to adjust the final location
 
-            # swi   552
-
             # stripe check (before checking hat color, because the majority of
             # hats are blue or black)
 Stripe:     addi  $4, $2, -61
@@ -112,32 +96,32 @@ Black:      addi  $4, $2, 65        # glasses
             lbu   $4, Array($4)
             bne   $4, $7, RowLoop
 
-            addi  $4, $2, 450       # shirt
-            lbu   $4, Array($4)
-            bne   $4, $7, RowLoop
-
             addi  $4, $2, 129       # skin
             lbu   $4, Array($4)
             bne   $4, $9, RowLoop
 
+            addi  $4, $2, 450       # shirt
+            lbu   $4, Array($4)
+            bne   $4, $7, RowLoop
+
             j     End               # make sure we don't accidentally 
                                     # execute Blue code
-
+            
 Blue:       addi  $4, $2, 66        # eyes
             lbu   $4, Array($4)
             bne   $4, $10,RowLoop
 
-            addi  $4, $2, 259       # mouth
+            addi  $4, $2, 194       # mouth
             lbu   $4, Array($4)
             bne   $4, $8, RowLoop
-
-            addi  $4, $2, 450       # shirt
-            lbu   $4, Array($4)
-            bne   $4, $6, RowLoop
 
             addi  $4, $2, 65        # skin
             lbu   $4, Array($4)
             bne   $4, $9, RowLoop
+
+            addi  $4, $2, 450       # shirt
+            lbu   $4, Array($4)
+            bne   $4, $6, RowLoop
 
 End:        addi  $2, $2, -251
             swi   553               # submit answer and check
