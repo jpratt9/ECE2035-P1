@@ -28,7 +28,7 @@ FindGeorge: addi  $1, $0, Array     # point to array base
             # incrementation of row and col were calculated based on
             # several trials of each with all combinations of values ranging
             # from 3 to 6
-            addi  $1, $0, -4        # col_i = 0
+            addi  $1, $0, 1        # col_i = 2
 ColLoop:    addi  $1, $1, 4         # col+=4
             addi  $3, $0, -5        # row_i = 0
 RowLoop:    addi  $3, $3, 5         # row+=5
@@ -56,15 +56,16 @@ RowLoop:    addi  $3, $3, 5         # row+=5
 
             # swi   552
 
-            beq   $4, $6, Move        # FIXME: change to BadRowCheck
+            beq   $4, $6, Left        # if the hat is Blue, start moving to 
+                                      # reference point
             bne   $4, $7, RowLoop     # if it wasn't blue or black, wrong face
 
             #swi   552
-
-            # we're going to filter out troublesome rows (rows that end up
-            # being repeatedly processed by the algorithm)
             
-Move:       beq   $1, $0, Down      # skip to going down to prevent going out of 
+            # The following code (up to but not including "Stripes")
+            # will move our index to that of the bottom left of the hat
+            # (because this is the simplest reference point to get to).
+# Move:       beq   $1, $0, Down      # skip to going down to prevent going out of 
                                     # bounds
             
             # Firstly, we need to get to the far-left point in the current row
