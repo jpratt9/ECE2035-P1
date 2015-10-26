@@ -18,85 +18,126 @@ FindGeorge: addi  $1, $0, Array     # point to array base
             # That way, if we find a face that isn't right we can skip down a 
             # few rows, and when we get to the bottom, we can skip to the next
             # column.
-            addi  $1, $0, -1        # col
-ColLoop:    addi  $1, $1, 1         # col++
-            addi  $3, $0, -1        # row
-RowLoop:    addi  $3, $3, 1         # row++
-            slti  $5, $3, 58        # tmp = (row < 58)
+
+            addi  $6, $0, 3
+            addi  $7, $0, 8
+            addi  $8, $0, 2
+            addi  $9, $0, 5
+            addi  $10,$0, 7
+
+            # incrementation of row and col were calculated based on
+            # several trials of each with all combinations of values ranging
+            # from 3 to 6
+            addi  $1, $0, -4        # col_i = 0
+ColLoop:    addi  $1, $1, 4         # col+=4
+            addi  $3, $0, -5        # row_i = 0
+RowLoop:    addi  $3, $3, 5         # row+=5
+            slti  $5, $3, 60        # tmp = (row < 58)
             beq   $5, $0, ColLoop   # if (row >= 58), skip to next column
             sll   $2, $3, 6         # index
             add   $2, $2, $1        # index = col + 64 * row
+            # swi   552
+
+
+            # prototype code for linear indexing, not (row,col) -> index
+            #addi  $2, $0, -6
+            #addi  $2, $2, 6
+            #srl   $1, $2, 
 
             # check that pixel is not background color
             lbu   $4, Array($2)     # pixel = Array(index)
             slti  $5, $4, 9         # tmp = pixel < 9 (face colored)
             beq   $5, $0, RowLoop   # if (pixel >= 9), skip to next pixel
 
-            # check that pixel is either blue or black (for correct hat color)
-            addi  $5, $0, 3         # check for blue
-            beq   $4, $5, Move
-            addi  $5, $0, 8         # check for black
-            beq   $4, $5, Move
-            j     Wrong
             
             # All we know from here is that we're on top of the hat.
             # From here, we need to get to a reference point. I picked the 
             # bottom-left of the hat.
 
+            # swi   552
+
+            beq   $4, $6, Move        # FIXME: change to BadRowCheck
+            bne   $4, $7, RowLoop     # if it wasn't blue or black, wrong face
+
+            #swi   552
+
+            # we're going to filter out troublesome rows (rows that end up
+            # being repeatedly processed by the algorithm)
             
 Move:       beq   $1, $0, Down      # skip to going down to prevent going out of 
                                     # bounds
             
             # Firstly, we need to get to the far-left point in the current row
             # (on the hat).
-Left:       addi  $3, $3, -1        # location left of pixel
-            lbu   $4, Array($3)     # load left pixel
+Left:       addi  $2, $2, -1        # location left of pixel
+            lbu   $4, Array($2)     # load left pixel
             slti  $5, $4, 9         # tmp = (left pixel < 9)
             bne   $5, $0, Left      # if (left pixel < 9), keep going left
-            addi  $3, $3, 1         # This algo is bound to take us off the hat,
+            addi  $2, $2, 1         # This algo is bound to take us off the hat,
                                     # so we'll need to adjust the final location
 
-DownLeft:   addi  $3, $3, 63        # location down-left of pixel
-            lbu   $4, Array($3)     # load down-left of pixel
+DownLeft:   addi  $2, $2, 63        # location down-left of pixel
+            lbu   $4, Array($2)     # load down-left of pixel
             slti  $5, $4, 9         # tmp = (down-left pixel < 9)
             bne   $5, $0, DownLeft  # if (left pixel < 9), keep going down-left
-            addi  $3, $3, -63       # This algo is bound to take us off the hat,
+            addi  $2, $2, -63       # This algo is bound to take us off the hat,
                                     # so we'll need to adjust the final location
 
-Down:       addi  $3, $3, 64        # location below pixel
-            lbu   $4, Array($3)     # load below pixel
+Down:       addi  $2, $2, 64        # location below pixel
+            lbu   $4, Array($2)     # load below pixel
             slti  $5, $4, 9         # tmp = (below pixel < 9)
             bne   $5, $0, Down      # if (below pixel < 9), keep going down
-            addi  $3, $3, -64       # This algo is bound to take us off the hat,
+            addi  $2, $2, -64       # This algo is bound to take us off the hat,
                                     # so we'll need to adjust the final location
 
+            # swi   552
 
+            # stripe check (before checking hat color, because the majority of
+            # hats are blue or black)
+Stripe:     addi  $4, $2, -61
+            addi  $5, $0, 1
+            lbu   $4, Array($4)
+            bne   $4, $5, RowLoop
 
+HatColor:   lbu   $4, Array($2)
+            beq   $4, $6, Blue
+            bne   $4, $7, RowLoop   # if it wasn't blue or black, wrong face
 
-            lbu   $4, Array($3)
-            addi  $2, $3, 0
-            swi   552
+Black:      addi  $4, $2, 65        # glasses
+            lbu   $4, Array($4)
+            bne   $4, $6, RowLoop
 
+            addi  $4, $2, 259       # moustache
+            lbu   $4, Array($4)
+            bne   $4, $7, RowLoop
 
-      
-            
+            addi  $4, $2, 450       # shirt
+            lbu   $4, Array($4)
+            bne   $4, $7, RowLoop
 
+            addi  $4, $2, 129       # skin
+            lbu   $4, Array($4)
+            bne   $4, $9, RowLoop
 
-            ### The following are temporary (replace them).
-            ### They are included to show how to use swi 552 and 553.
-            #addi  $2, $0, 160       # mark the 160th pixel
-            #swi   552               # with this swi
-   
-            #addi  $2, $0, 161       # mark the 161th pixel
-            #swi   552               # with this swi
+            j     End               # make sure we don't accidentally 
+                                    # execute Blue code
 
-            #addi    $2, $0, 300     # always guess the 300th pixel
-            ### The above instructions are temporary (replace them).
+Blue:       addi  $4, $2, 66        # eyes
+            lbu   $4, Array($4)
+            bne   $4, $10,RowLoop
 
+            addi  $4, $2, 259       # mouth
+            lbu   $4, Array($4)
+            bne   $4, $8, RowLoop
 
-  
-End:        swi   553               # submit answer and check
+            addi  $4, $2, 450       # shirt
+            lbu   $4, Array($4)
+            bne   $4, $6, RowLoop
+
+            addi  $4, $2, 65        # skin
+            lbu   $4, Array($4)
+            bne   $4, $9, RowLoop
+
+End:        addi  $2, $2, -251
+            swi   553               # submit answer and check
             jr    $31               # return to caller
-
-Wrong:      addi  $2, $2, 11
-            j     RowLoop
